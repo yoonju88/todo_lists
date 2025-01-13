@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchAllTodos } from '@/data/firestore'
+import { fetchAllTodos, addATodo } from '@/data/firestore'
 
 //fetch all data lists
 export async function GET(request: NextRequest) {
@@ -14,16 +14,10 @@ export async function GET(request: NextRequest) {
 // Add to do list
 export async function POST(request: NextRequest) {
     const { title } = await request.json()
-    const newTodo = {
-        id: "10",
-        title,
-        is_done: false
-    }
-
+    const addedTodo = await addATodo({ title })
     const response = {
         message: 'added to do list successfully',
-        data: newTodo
+        data: addedTodo
     }
-
-    return NextResponse.json(response, { status: 201 });
+    return NextResponse.json(response, { status: 200 });
 }

@@ -1,33 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
+import { fetchATodo, deleteATodo } from "@/data/firestore";
 
-// fetching single data 
+// Fetching single data 
 export async function GET(request: NextRequest,
     { params }: { params: { slug: string } }) {
     const searchParams = request.nextUrl.searchParams
-
-    const search = searchParams.get('search')
+    const query = searchParams.get('query')
+    const fetchedTodo = await fetchATodo(params.slug)
+    if (!fetchedTodo) {
+        return NextResponse.json(null, { status: 204 })
+    }
     const response = {
-        message: "recive api data successfully",
-        data: {
-            id: params.slug,
-            title: "today ",
-            is_done: false,
-            query: search,
-        },
+        message: "recived a todo data successfully",
+        data: fetchedTodo
     }
     return NextResponse.json(response, { status: 200 });
 }
-// delete single data
+
+// Delete single data
 export async function DELETE(request: NextRequest,
     { params }: { params: { slug: string } }) {
-
+    const deletedATodo = await deleteATodo(params.slug)
+    if (!deletedATodo) {
+        return NextResponse.json(null, { status: 204 })
+    }
     const response = {
-        message: "Single data  removed successfully",
-        data: {
-            id: params.slug,
-            title: "today to do list",
-            is_done: false,
-        }
+        message: "Single data removed successfully",
+        data: deletedATodo
     }
     return NextResponse.json(response, { status: 200 });
 }

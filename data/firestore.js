@@ -1,5 +1,14 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "firebase/firestore";
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    getDoc,
+    doc,
+    setDoc,
+    Timestamp,
+    deleteDoc
+} from "firebase/firestore";
 
 const firebaseConfig = {
     apiKey: process.env.API_KEY,
@@ -12,7 +21,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-//fetch all data list of todolists from firestore
+//Fetch all data list of todolists from firestore
 export async function fetchAllTodos() {
     const querySnapshot = await getDocs(collection(db, "todos")); // "todos" = name of collection from firestore Database
     if (querySnapshot.empty) { return [] }
@@ -29,4 +38,49 @@ export async function fetchAllTodos() {
     });
     return fetchedTodos;
 }
-module.exports = { fetchAllTodos };
+
+export async function addATodo({ title }) {
+    const newTodoRef = doc(collection(db, "todos"))
+    const createdAtTimestamp = Timestamp.fromDate(new Date())
+    const newTodoData = {
+        id: newTodoRef.id,
+        title: title,
+        is_done: false,
+        created_at: createdAtTimestamp
+    }
+    await setDoc(newTodoRef, newTodoData)
+    return {
+        id: newTodoRef.id,
+        title: title,
+        is_done: false,
+        created_at: createdAtTimestamp.toDate(),
+    }
+}
+// fetch single data
+export async function fetchATodo(id) {
+    const todoDocRef = doc(db, "todos", id);
+    const todoDocSnap = await getDoc(todoDocRef);
+    if (!id) { return null }
+    if (todoDocSnap.exists()) {
+        const fetchedTodo = {
+            id: todoDocSnap.id,
+            title: todoDocSnap.data()["title"],
+            is_done: todoDocSnap.data()["is_done"],
+            created_at: todoDocSnap.data()["created_at"].toDate()
+        }
+        return fetchedTodo;
+    } else {
+        return null;
+    }
+}
+
+export async function deleteATodo(id) {
+    const fetchedATodo = await fetchATodo(id)
+    if (!fetchATodo) {
+        return null;
+    }
+    await deleteDoc(doc(db, "todos", id));
+    return fetchATodo
+}
+
+module.exports = { fetchAllTodos, addATodo, fetchATodo, deleteATodo };
