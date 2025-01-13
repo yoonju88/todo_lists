@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import dummyTodos from '@/data/dummy.json';
+import { fetchAllTodos } from '@/data/firestore'
 
 //fetch all data lists
 export async function GET(request: NextRequest) {
+    const fetchedAllTodos = await fetchAllTodos()
     const response = {
         message: "request all data.",
-        data: dummyTodos,
+        data: fetchedAllTodos,
     }
     return NextResponse.json(response, { status: 200 });
 }
@@ -25,12 +26,4 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(response, { status: 201 });
-}
-
-export async function GET(request: NextRequest) {
-    const response = {
-        message: "request dummy data.",
-        data: dummyTodos,
-    }
-    return NextResponse.json(response, { status: 200 });
 }
