@@ -14,6 +14,11 @@ export async function GET(request: NextRequest) {
 // Add to do list
 export async function POST(request: NextRequest) {
     const { title } = await request.json()
+    if (!title) {
+
+        const errorMessage = { message: 'The title is not exist.' }
+        return NextResponse.json(errorMessage, { status: 404 });
+    }
     const addedTodo = await addATodo({ title })
     const response = {
         message: 'added to do list successfully',

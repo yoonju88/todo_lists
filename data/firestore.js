@@ -7,8 +7,10 @@ import {
     doc,
     setDoc,
     Timestamp,
-    deleteDoc
+    deleteDoc,
+    updateDoc,
 } from "firebase/firestore";
+import { isDataView } from "util/types";
 
 const firebaseConfig = {
     apiKey: process.env.API_KEY,
@@ -60,20 +62,22 @@ export async function addATodo({ title }) {
 export async function fetchATodo(id) {
     const todoDocRef = doc(db, "todos", id);
     const todoDocSnap = await getDoc(todoDocRef);
-    if (!id) { return null }
-    if (todoDocSnap.exists()) {
-        const fetchedTodo = {
-            id: todoDocSnap.id,
-            title: todoDocSnap.data()["title"],
-            is_done: todoDocSnap.data()["is_done"],
-            created_at: todoDocSnap.data()["created_at"].toDate()
-        }
-        return fetchedTodo;
-    } else {
-        return null;
+    if (!todoDocSnap.exists()) { return null }
+    const data = todoDocSnap.data()
+
+    if (!data) {
+        return null
+    }
+
+    return {
+        id: todoDocSnap.id,
+        title: data["title"] || "Untitled", // 
+        is_done: data["is_done"] ?? false, // 
+        created_at: data["created_at"] ? data["created_at"].toDate() : null,
     }
 }
 
+// Delete a todo list
 export async function deleteATodo(id) {
     const fetchedATodo = await fetchATodo(id)
     if (!fetchATodo) {
@@ -83,4 +87,35 @@ export async function deleteATodo(id) {
     return fetchATodo
 }
 
-module.exports = { fetchAllTodos, addATodo, fetchATodo, deleteATodo };
+// update a todo information 
+export async function updateATodo(
+    id, { title, is_done }) {
+    const fetchedTodo = await fetchATodo(id)
+    if (!fetchedTodo) {
+        return null;
+    }
+    const todoRef = doc(db, "todos", id)
+    // 업데이트할 데이터 준비
+    const updateData = {}
+    // title과 is_done이 undefined가 아니면 업데이트 데이터에 추가
+    if (title !== undefined) {
+        updateData.title = title;
+    }
+    if (is_done !== undefined) {
+        updateData.is_done = is_done;
+    }
+    // updateDoc 실행 (Firestore에 업데이트 적용)
+    await updateDoc(todoRef, updateData)
+    // 업데이트된 문서를 다시 가져와 최신 데이터를 반환합니다.
+    const updatedTodoSnap = await getDoc(todoRef);
+    const updatedTodo = updatedTodoSnap.data();
+    // 업데이트된 데이터를 반환합니다. 없으면 기본값으로 기존 데이터를 사용합니다.
+    return {
+        id: id,
+        title: updatedTodo?.title || fetchedTodo.title,
+        is_done: updatedTodo?.is_done ?? fetchedTodo.is_done, // is_done이 업데이트되지 않으면 기존 값을 사용
+        created_at: fetchedTodo.created_at,
+    }
+}
+
+module.exports = { fetchAllTodos, addATodo, fetchATodo, deleteATodo, updateATodo };

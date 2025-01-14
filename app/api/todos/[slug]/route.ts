@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { fetchATodo, deleteATodo } from "@/data/firestore";
+import { fetchATodo, deleteATodo, updateATodo } from "@/data/firestore";
 
 // Fetching single data 
 export async function GET(request: NextRequest,
@@ -32,18 +32,22 @@ export async function DELETE(request: NextRequest,
 }
 
 // update single data
-export async function POST(request: NextRequest,
-    { params }: { params: { slug: string } }) {
-    const { title, is_done } = await request.json()
+export async function POST(
+    request: NextRequest,
+    { params }: { params: { slug: string } }
+): Promise<NextResponse> {
+    const { slug } = params
 
-    const updatedTodo = {
-        id: params.slug,
-        title,
-        is_done
+
+    const { title, is_done } = await request.json()
+    const updatedTodo = await updateATodo(slug, { title, is_done })
+
+    if (!updatedTodo) {
+        return NextResponse.json(null, { status: 204 });
     }
 
     const response = {
-        message: "Updated single data successfully",
+        message: "Updated a data successfully",
         data: updatedTodo
     }
     return NextResponse.json(response, { status: 200 });
