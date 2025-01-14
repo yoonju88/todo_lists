@@ -9,6 +9,8 @@ import {
     Timestamp,
     deleteDoc,
     updateDoc,
+    query,
+    orderBy,
 } from "firebase/firestore";
 import { isDataView } from "util/types";
 
@@ -25,7 +27,9 @@ const db = getFirestore(app);
 
 //Fetch all data list of todolists from firestore
 export async function fetchAllTodos() {
-    const querySnapshot = await getDocs(collection(db, "todos")); // "todos" = name of collection from firestore Database
+    const todosRef = collection(db, "todos")
+    const descQuery = query(todosRef, orderBy("created_at", "desc"));
+    const querySnapshot = await getDocs(descQuery); // "todos" = name of collection from firestore Database
     if (querySnapshot.empty) { return [] }
     const fetchedTodos = [];
 
@@ -68,7 +72,6 @@ export async function fetchATodo(id) {
     if (!data) {
         return null
     }
-
     return {
         id: todoDocSnap.id,
         title: data["title"] || "Untitled", // 
