@@ -15,9 +15,8 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     const { title } = await request.json()
     if (!title) {
-
-        const errorMessage = { message: 'The title is not exist.' }
-        return NextResponse.json(errorMessage, { status: 404 });
+        const errorMessage = { message: "Please note the title." }
+        return NextResponse.json(errorMessage, { status: 422 });
     }
     const addedTodo = await addATodo({ title })
     const response = {
