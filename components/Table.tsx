@@ -12,18 +12,15 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
         <TableColumn>IS DONE</TableColumn>
         <TableColumn>CREATED AT</TableColumn>
       </TableHeader>
-      <TableBody>
-        {todos && todos.map((todo: Todo) => {
-          return (
-            <TableRow key="1">
-              <TableCell>1</TableCell>
-              <TableCell>CEO</TableCell>
-              <TableCell>Active</TableCell>
-              <TableCell>HOHO</TableCell>
-            </TableRow>
-          )
-        })
-        }
+      <TableBody emptyContent={"No rows to display"}>
+        {todos && todos.map((todo: Todo) => (
+          <TableRow key={todo.id}>
+            <TableCell>{todo.id.slice(0, 3)}</TableCell>
+            <TableCell>{todo.title}</TableCell>
+            <TableCell>{todo.is_done ? "✅" : "☑️"}</TableCell>
+            <TableCell>{`${todo.created_at}`}</TableCell>
+          </TableRow>
+        ))}
       </TableBody>
     </Table>
   );
