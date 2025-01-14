@@ -18,7 +18,7 @@ export default function AddInput() {
     const router = useRouter()
     const [isLoading, setIsLoading] = useState<Boolean>(false)
 
-    const addAListHandler = async (newTodoInput: string): void => {
+    const addAListHandler = async (newTodoInput: string) => {
         if (!isEnable) { return }
         setIsLoading(true)
         await new Promise(f => setTimeout(f, 1000))
@@ -64,7 +64,6 @@ export default function AddInput() {
                     }
                     }
                 />
-
                 {isEnable ? (
                     <Button
                         color="secondary"
