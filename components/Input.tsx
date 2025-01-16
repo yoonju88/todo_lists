@@ -53,7 +53,7 @@ export default function AddInput() {
                     theme="dark"
                 />
             </span>
-            <div className="flex w-full flex-wrap md:flex-nowrap gap-4">
+            <div className="flex w-full md:flex-nowrap gap-4">
                 <Input
                     label="New to do list"
                     type="text"
