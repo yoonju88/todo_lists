@@ -3,7 +3,8 @@ import { fetchATodo, deleteATodo, updateATodo } from "@/data/firestore";
 
 // Fetching single data 
 export async function GET(request: NextRequest,
-    { params }: { params: { slug: string } }) {
+    context: { params: { slug: string } }) {
+    const { params } = context
     const searchParams = request.nextUrl.searchParams
     const query = searchParams.get('query')
     if (!query) {
