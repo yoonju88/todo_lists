@@ -2,18 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { fetchATodo, deleteATodo, updateATodo } from "@/data/firestore";
 
 // Fetching single data 
-export async function GET(request: NextRequest,
-    context: { params: { slug: string } }) {
-    const { params } = context
-    const searchParams = request.nextUrl.searchParams
-    const query = searchParams.get('query')
-    if (!query) {
-        return NextResponse.json(
-            { message: "Query parameter is required" },
-            { status: 400 }
-        );
-    }
+export async function GET(
+    request: NextRequest,
+    { params }: { params: { slug: string } }
+): Promise<NextResponse> {
     try {
+        const { slug } = params;
+        const searchParams = request.nextUrl.searchParams
+        const query = searchParams.get('query')
+        if (!query) {
+            return NextResponse.json(
+                { message: "Query parameter is required" },
+                { status: 400 }
+            );
+        }
         const fetchedTodo = await fetchATodo(params.slug)
         if (!fetchedTodo) {
             return NextResponse.json(null, { status: 204 })
