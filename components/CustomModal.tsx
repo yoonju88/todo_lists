@@ -64,7 +64,6 @@ export default function CustomModal({ focusedTodo, modalType, onCloseAction, onE
                     <p><span className="font-bold">id :</span> {focusedTodo.id}</p>
                     <Input
                         isRequired
-                        autoFocus
                         label="To Do List"
                         placeholder="Enter the to do list."
                         defaultValue={focusedTodo.title}
