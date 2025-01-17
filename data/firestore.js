@@ -135,7 +135,7 @@ export async function updateATodo(id, { title, is_done }) {
   };
 }
 
-module.exports = {
+export default {
   fetchAllTodos,
   addATodo,
   fetchATodo,
