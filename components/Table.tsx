@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -20,12 +20,14 @@ import {
   PopoverTrigger,
   PopoverContent,
   Spinner,
+  Pagination,
 } from "@nextui-org/react";
 import { Todo, FocusedTodoType, CustomModalType } from "@/types"
 import { VerticalDotsIcon } from './icons'
 import CustomModal from "./CustomModal";
 import { useRouter } from 'next/navigation'
 import { ToastContainer, toast } from 'react-toastify';
+import { addListAction, editListAction, deleteListAction } from '@/utils/action'
 
 // 한줄 복사 :  shift + option + 화살표 아래 
 export default function TodosTable({ todos }: { todos: Todo[] }) {
@@ -38,62 +40,65 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
     focusedTodo: null,
     modalType: "detail" as CustomModalType,
   })
-  const notify = (msg: string) => toast.success(msg);
+  const [page, setPage] = React.useState(1)
 
-  const hadleTodoRequest = async (url: string, method: string, body: object) => {
-    setIsLoading(true)
-    await new Promise(f => setTimeout(f, 500))
-    const response = await fetch(url, {
-      method,
-      body: JSON.stringify(body),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      cache: 'no-store'
-    })
-    setIsLoading(false)
-    router.refresh()
-  }
+  const rowsPerPage = 6;
+  const pages = Math.ceil(todos.length / rowsPerPage)
+  const todoList = React.useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return todos.slice(start, end)
+  }, [page, todos])
+
+
+  const notify = (msg: string) => toast.success(msg);
+  const promise = new Promise((resolve) => setTimeout(() => resolve("done"), 1300))
 
   const addAListHandler = async (newTodoInput: string) => {
     if (!isEnable) return
-    await hadleTodoRequest(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos`,
-      'POST',
-      { title: newTodoInput }
-    )
+    setIsLoading(true)
+    try {
+      await promise;
+      await addListAction(newTodoInput)
+      notify("To do list added successfully!👏🏼")
+    } catch (error) {
+      notify("Failed add a to do list.")
+    }
+    setIsLoading(false)
+    router.refresh()
     setNewTodoInput('')
     setIsEnable(false)
-    notify("To do list added successfully!👏🏼")
   }
 
-  const EditTodoHandler = async (id: string, editedTitle: string,
-    editedIsDone: boolean) => {
-    await hadleTodoRequest(
-      `${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`,
-      'POST',
-      { title: editedTitle, is_done: editedIsDone }
-    )
-    notify("To do list edited successfully!👏🏼")
+  const EditTodoHandler = async (
+    id: string,
+    editedTitle: string,
+    editedIsDone: boolean,
+  ) => {
+    setIsLoading(true)
+    try {
+      await promise;
+      await editListAction(id, editedTitle, editedIsDone)
+      notify("To do list edited successfully!👏🏼")
+    } catch (error) {
+      notify("Failed edit a to do list.")
+    }
+    setIsLoading(false)
+    router.refresh()
   }
 
   const DeleteTodoHandler = async (id: string) => {
     setIsLoading(true)
-    await new Promise(f => setTimeout(f, 500))
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
-      method: 'delete',
-      cache: 'no-store'
-    })
-    router.refresh()
-    setIsLoading(false)
-    notify("To do list deleted successfully!👏🏼")
-  }
-
-  useEffect(() => {
-    if (currentModal.focusedTodo) {
-      onOpen(); // 모달이 열려야 할 때 onOpen 호출
+    try {
+      await promise;
+      await deleteListAction(id);
+      notify("To do list deleted successfully!👏🏼")
+    } catch (error) {
+      notify("Failed delete a to do list.")
     }
-  }, [currentModal.focusedTodo]);
+    setIsLoading(false)
+    router.refresh()
+  }
 
   const ModalView = () => {
     return (
@@ -105,13 +110,14 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
                 focusedTodo={currentModal.focusedTodo}
                 modalType={currentModal.modalType}
                 onCloseAction={onClose}
-                onEditAction={(id, title, isDone) => {
+                onEditAction={async (id, title, isDone) => {
                   // console.log(id, title, isDone)
-                  EditTodoHandler(id, title, isDone)
+                  await EditTodoHandler(id, title, isDone)
                   onClose()
                 }}
                 onDeleteAction={(id) => {
                   DeleteTodoHandler(id)
+                  onClose()
                 }}
               />
             )
@@ -171,7 +177,23 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
         )}
       </div >
       <ModalView />
-      <Table aria-label="Example static collection table">
+      <Table
+        aria-label="Example static collection table"
+        bottomContent={
+          <div className="flex w-full justify-center">
+            <Pagination
+              isCompact
+              showControls
+              showShadow
+              color="secondary"
+              page={page}
+              total={pages}
+              onChange={(page) => setPage(page)}
+            />
+          </div>
+        }
+        classNames={{ wrapper: "min-h-[220px]", }}
+      >
         <TableHeader>
           <TableColumn>ID</TableColumn>
           <TableColumn>TITLE</TableColumn>
@@ -179,8 +201,11 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
           <TableColumn>CREATED AT</TableColumn>
           <TableColumn>ACTION</TableColumn>
         </TableHeader>
-        <TableBody emptyContent={"No rows to display"}>
-          {todos && todos.map((todo: Todo) => (
+        <TableBody
+          emptyContent={"No rows to display"}
+          items={todoList}
+        >
+          {todoList && todoList.map((todo: Todo) => (
             <TableRow key={todo.id}>
               <TableCell>{todo.id.slice(0, 3)}</TableCell>
               <TableCell>{todo.title}</TableCell>
