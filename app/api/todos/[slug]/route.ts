@@ -16,7 +16,7 @@ export async function GET(
                 { status: 400 }
             );
         }
-        const fetchedTodo = await fetchATodo(params.slug)
+        const fetchedTodo = await fetchATodo(slug)
         if (!fetchedTodo) {
             return NextResponse.json(null, { status: 204 })
         }
