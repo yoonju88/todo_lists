@@ -205,39 +205,42 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
           emptyContent={"No rows to display"}
           items={todoList}
         >
-          {todoList && todoList.map((todo: Todo) => (
-            <TableRow key={todo.id}>
-              <TableCell>{todo.id.slice(0, 3)}</TableCell>
-              <TableCell>{todo.title}</TableCell>
-              <TableCell>{todo.is_done ? "✅" : "☑️"}</TableCell>
-              <TableCell>{`${todo.created_at}`}</TableCell>
-              <TableCell>
-                <div className="relative flex justify-end items-center gap-2">
-                  <Dropdown>
-                    <DropdownTrigger>
-                      <Button isIconOnly size="sm" variant="light">
-                        <VerticalDotsIcon className="text-default-300" />
-                      </Button>
-                    </DropdownTrigger >
-                    <DropdownMenu
-                      onAction={(key) => {
-                        // console.log(`todo.id: ', ${todo.id} / key : , ${key}`)
-                        setCurrentModal({
-                          focusedTodo: todo,
-                          modalType: key as CustomModalType,
-                        });
-                        onOpen();
-                      }}
-                    >
-                      <DropdownItem key="detail">Detail</DropdownItem>
-                      <DropdownItem key="edit">Edit</DropdownItem>
-                      <DropdownItem key="delete">Delete</DropdownItem>
-                    </DropdownMenu>
-                  </Dropdown>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {todoList && todoList.map((todo: Todo) => {
+            const textDeco = `${todo.is_done ? "line-through text-gray-100/50" : ""}`
+            return (
+              <TableRow key={todo.id}>
+                <TableCell className={textDeco}>{todo.id.slice(0, 3)}</TableCell>
+                <TableCell className={textDeco}>{todo.title}</TableCell>
+                <TableCell>{todo.is_done ? "✅" : "☑️"}</TableCell>
+                <TableCell className={textDeco}>{`${todo.created_at}`}</TableCell>
+                <TableCell>
+                  <div className="relative flex justify-end items-center gap-2">
+                    <Dropdown>
+                      <DropdownTrigger>
+                        <Button isIconOnly size="sm" variant="light">
+                          <VerticalDotsIcon className="text-default-300" />
+                        </Button>
+                      </DropdownTrigger >
+                      <DropdownMenu
+                        onAction={(key) => {
+                          // console.log(`todo.id: ', ${todo.id} / key : , ${key}`)
+                          setCurrentModal({
+                            focusedTodo: todo,
+                            modalType: key as CustomModalType,
+                          });
+                          onOpen();
+                        }}
+                      >
+                        <DropdownItem key="detail">Detail</DropdownItem>
+                        <DropdownItem key="edit">Edit</DropdownItem>
+                        <DropdownItem key="delete">Delete</DropdownItem>
+                      </DropdownMenu>
+                    </Dropdown>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )
+          })}
         </TableBody>
       </Table>
     </>
