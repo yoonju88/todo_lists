@@ -35,9 +35,11 @@ export async function GET(
 
 // Delete single data
 export async function DELETE(request: NextRequest,
-    { params }: { params: { slug: string } }) {
+    { params }: { params: Promise<{ slug: string }> }) {
+
     try {
-        const deletedATodo = await deleteATodo(params.slug)
+        const slug = (await params).slug;
+        const deletedATodo = await deleteATodo(slug)
         if (!deletedATodo) {
             return NextResponse.json(null, { status: 204 })
         }
