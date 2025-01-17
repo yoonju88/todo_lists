@@ -27,9 +27,7 @@ import { VerticalDotsIcon } from './icons'
 import CustomModal from "./CustomModal";
 import { useRouter } from 'next/navigation'
 import { ToastContainer, toast } from 'react-toastify';
-import addListAction from '@/utils/action'
-import editListAction from '@/utils/action'
-import deleteListAction from '@/utils/action'
+import { addListAction, editListAction, deleteListAction } from '@/utils/action'
 
 // 한줄 복사 :  shift + option + 화살표 아래 
 export default function TodosTable({ todos }: { todos: Todo[] }) {
