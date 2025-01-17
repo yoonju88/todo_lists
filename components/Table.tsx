@@ -206,7 +206,7 @@ export default function TodosTable({ todos }: { todos: Todo[] }) {
           items={todoList}
         >
           {todoList && todoList.map((todo: Todo) => {
-            const textDeco = `${todo.is_done ? "line-through text-gray-100/50" : ""}`
+            const textDeco = `${todo.is_done ? "line-through text-slate-400" : ""}`
             return (
               <TableRow key={todo.id}>
                 <TableCell className={textDeco}>{todo.id.slice(0, 3)}</TableCell>
