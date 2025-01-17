@@ -59,9 +59,9 @@ export async function DELETE(request: NextRequest,
 // update single data
 export async function POST(
     request: NextRequest,
-    { params }: { params: { slug: string } }
-): Promise<NextResponse> {
-    const { slug } = params
+    { params }: { params: Promise<{ slug: string }> }
+) {
+    const slug = (await params).slug;
     const { title, is_done } = await request.json()
     try {
         const updatedTodo = await updateATodo(slug, { title, is_done })
