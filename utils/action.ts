@@ -1,4 +1,4 @@
-export const addListAction = async (input: string) => {
+const addListAction = async (input: string) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos`, {
         method: 'post',
         body: JSON.stringify({
@@ -8,7 +8,7 @@ export const addListAction = async (input: string) => {
     })
 }
 
-export const editListAction = async (
+const editListAction = async (
     id: string,
     editedTitle: string,
     editedIsDone: boolean
@@ -23,7 +23,7 @@ export const editListAction = async (
     })
 }
 
-export const deleteListAction = async (
+const deleteListAction = async (
     id: string,
 ) => {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/todos/${id}`, {
@@ -31,3 +31,5 @@ export const deleteListAction = async (
         cache: 'no-store',
     })
 }
+
+export default { addListAction, editListAction, deleteListAction }
